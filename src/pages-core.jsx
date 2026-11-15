@@ -2,10 +2,56 @@
 var React = window.React;
 const { useState, useEffect, useRef, useCallback } = React;
 
+// ===== Busca geral do portal =====
+const PCM_PAGE_LABEL = { novidades:'Novidades', projetos:'Projetos', iniciativas:'Iniciativas', equipe:'Equipe', indicadores:'Indicadores', pops:'POPs', mapros:'MAPROs', pcm:'PCM', home:'Início', quemsomos:'Quem Somos' };
+const pcmNorm = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const pcmRead = (k) => { try { return JSON.parse(localStorage.getItem(k) || '[]') || []; } catch (e) { return []; } };
+const buildSearchIndex = () => {
+  const idx = [];
+  const add = (page, t, d, url, extra) => { if (t) idx.push({ page, t, d: d || '', url: url || '', hay: pcmNorm([t, d, extra].join(' ')) }); };
+  pcmRead('pcm.novidades.posts.v2').forEach(p => add('novidades', p.t, p.b, '', p.full));
+  pcmRead('pcm.projetos.v1').forEach(p => add('projetos', p.t, p.d, '', p.full + ' ' + (p.resp || '')));
+  pcmRead('pcm.iniciativas.v1').forEach(p => add('iniciativas', p.t, p.d, '', p.full + ' ' + (p.resp || '')));
+  pcmRead('pcm.team.v3').forEach(p => add('equipe', p.n, p.r, '', p.b + ' ' + (p.email || '')));
+  (typeof INDICADORES_LIST !== 'undefined' ? INDICADORES_LIST : []).forEach(d => {
+    add('indicadores', d.t, d.d, d.url && d.url !== '#' ? d.url : '');
+    (d.children || []).forEach(c => add('indicadores', c.t, d.t, c.url));
+  });
+  [['pops','pcm.pops.free'],['mapros','pcm.mapros.free'],['indicadores','pcm.indicadores.free'],['pcm','pcm.pcm.free'],['home','pcm.home.free']].forEach(([pg, k]) =>
+    pcmRead(k).forEach(it => add(pg, it.title, it.body, it.kind === 'link' ? it.url : '')));
+  return idx;
+};
+const SiteSearch = ({ onNav }) => {
+  const [q, setQ] = useState('');
+  const terms = pcmNorm(q).split(/\s+/).filter(Boolean);
+  const results = terms.length ? buildSearchIndex().filter(r => terms.every(t => r.hay.includes(t))).map(r => ({ ...r, score: terms.every(t => pcmNorm(r.t).includes(t)) ? 0 : 1 })).sort((a, b) => a.score - b.score).slice(0, 12) : [];
+  const go = (r) => { if (r.url) window.open(r.url, '_blank', 'noopener'); else onNav(r.page); };
+  return (
+    <div className="card" style={{ padding: '18px 20px', marginBottom: 36, borderLeft: '4px solid var(--orange)' }}>
+      <div className="search" style={{ maxWidth: '100%' }}>
+        <span className="s-ico"><Icon name="search" size={18} /></span>
+        <input placeholder="Buscar no portal: indicador, POP, MAPRO, projeto, pessoa, novidade..." value={q} onChange={e => setQ(e.target.value)} style={{ fontSize: 15 }} />
+      </div>
+      {terms.length > 0 && <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {results.length === 0 && <div style={{ color: 'var(--ink-3)', fontSize: 13, padding: '6px 2px' }}>Nada encontrado para "{q}".</div>}
+        {results.map((r, i) =>
+          <button key={i} onClick={() => go(r)} style={{ textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--line)', background: 'var(--surface-2)', cursor: 'pointer' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', background: 'var(--purple-800)', borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>{PCM_PAGE_LABEL[r.page] || r.page}</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontWeight: 600, color: 'var(--ink)' }}>{r.t}</span>
+              {r.d && <span style={{ display: 'block', fontSize: 12.5, color: 'var(--ink-2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.d}</span>}
+            </span>
+            <Icon name="arrow-right" size={14} />
+          </button>)}
+      </div>}
+    </div>);
+};
+
 const HomePage = ({ onNav, blocks, addBlock }) =>
 <>
     <Hero onNav={onNav} />
     <div className="page" style={{ paddingTop: 100 }}>
+      <SiteSearch onNav={onNav} />
       <Reveal>
         <SectionHead eyebrow="Acesso rápido" title="Por onde começar" />
       </Reveal>
@@ -561,32 +607,33 @@ const MAPROsPage = () => {
 
 };
 
-const IndicadoresPage = () => {
-  const [dashboards, setDashboards] = useState([
-  { t: 'MTR / VTR · Retidos', d: 'Máquinas retidas (MTR) e veículos retidos (VTR) — controle 2026.', ico: 'truck', tone: 'p', url: 'https://grmultilixo-my.sharepoint.com/:x:/g/personal/gabriel_santos_multilixo_com_br/IQCc_DWQQM7ESpcM52Y_tKdnAcuun5LgfdfR31lNj4M306M?e=368iyR' },
-  { t: 'ATA · PCM', d: 'Atas e acompanhamento das reuniões diárias do PCM.', ico: 'calendar', tone: 'o', url: 'https://grmultilixo-my.sharepoint.com/:x:/g/personal/gabriel_santos_multilixo_com_br/IQCn5XSV75nvSYFkNHz_UzbqARrvnBBNyl2lC8lBDcZx560?e=xE2NlH' },
-  { t: 'Mapa dos Processos 2026', d: 'Mapa consolidado dos processos da manutenção — 2026.', ico: 'flow', tone: 'l', url: 'https://grmultilixo-my.sharepoint.com/:x:/g/personal/gabriel_santos_multilixo_com_br/IQBczakhDhqTSLs681X0gs54AR-sJJKqJk92R9FnSoGo0jU?e=eifOqT' },
-  { t: 'SGM · Daily Follow-up', d: 'Follow-up diário SGM — caminhões, máquinas, diesel e DTP. Clique para escolher.', ico: 'clock', tone: 'p', children: [
+const INDICADORES_LIST = [
+  { t: 'Ranking das Oficinas', d: 'Ranking de desempenho das oficinas e da manutenção.', ico: 'chart', tone: 'o', url: 'https://claude.ai/artifact/8niVMbHYZhkjVEg5VMjRHf' },
+  { t: 'Inventário de Frota', d: 'Composição da frota por empresa, filial, classe e fabricante (Power BI · PCM Manutenção Filiais).', ico: 'truck', tone: 'p', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
+  { t: 'Custo de Manutenção', d: 'Orçado x realizado, saídas de peças e custo por veículo (Power BI · PCM Manutenção Filiais).', ico: 'chart', tone: 'o', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
+  { t: 'Ordens de Serviço', d: 'Volume, custo e aging das O.S. (Power BI · PCM Manutenção Filiais).', ico: 'file', tone: 'l', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
+  { t: 'CPK e CPH', d: 'Custo por km (caminhões e VUC) e por hora (máquinas e geradores) — página de Performance.', ico: 'trend', tone: 'p', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
+  { t: 'QPK e QPH', d: 'Km e horas rodados entre uma quebra e outra — página de Performance.', ico: 'target', tone: 'o', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
+  { t: 'KM e Horas', d: 'Km e horas rodados por classe operacional, mês a mês — página de Performance.', ico: 'clock', tone: 'l', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
+  { t: 'S.O.S', d: 'Socorros na rua: evolução, prognósticos e reincidência — página de Performance.', ico: 'wrench', tone: 'p', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
+  { t: 'Daily · Manutenção', d: 'Indicadores do Daily Follow-up da oficina (Power BI · PCM Manutenção Filiais).', ico: 'dashboard', tone: 'o', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
+  { t: 'SGM · Daily Follow-up', d: 'Planilhas do Daily — PCM, caminhões, máquinas, diesel e DTP. Clique para escolher.', ico: 'clock', tone: 'p', children: [
+    { t: 'Daily · PCM', url: 'https://grmultilixo-my.sharepoint.com/:x:/r/personal/danilo_silva_multilixo_com_br/_layouts/15/Doc.aspx?sourcedoc=%7BC6EFFDC6-ECE7-48BC-98FA-5A0749DA9F3B%7D&file=SGM_Daily_Follow%20up%20PCM.xlsx&fromShare=true&action=default&mobileredirect=true' },
     { t: 'Daily · Follow-up Caminhões', url: 'https://grmultilixo-my.sharepoint.com/:x:/g/personal/gabriel_santos_multilixo_com_br/IQC6mt9VSm6ARZ5z0YPvgJRnAaZx4dG_uAA_xiL2yv3NRUI?e=ISl33P' },
     { t: 'Daily · Follow-up Máquinas', url: 'https://grmultilixo-my.sharepoint.com/:x:/g/personal/gabriel_santos_multilixo_com_br/IQD9n00G93wDS5Z1D7_-Hz-NAcXkjcXoFUT0Pc4NAeCeW3A?e=DXqtAP' },
     { t: 'Daily · Follow-up Diesel', url: 'https://grmultilixo-my.sharepoint.com/:x:/g/personal/gabriel_santos_multilixo_com_br/IQBaub6sxty-RrHgW0rGfT9YAfOizfOCGiew9z19SEhPW60?e=U8hXLP' },
     { t: 'Daily · Follow-up DTP', url: 'https://grmultilixo-my.sharepoint.com/:x:/g/personal/gabriel_santos_multilixo_com_br/IQAIhC2aHeveQayubMT_jkuUATXXYCCTnd2Z_8A-A7wGYWE?e=AJc7W1' }] },
-  { t: 'CRM · Fechamento do Mês', d: 'Fechamento mensal da manutenção — orçado x realizado.', ico: 'calendar', tone: 'o', url: 'https://app.powerbi.com/groups/3ddeded8-81f5-420c-911d-00b515315786/reports/9c9f93a3-dcec-44c0-b875-29d3bca039bb/f199eb34572138cda909?language=pt-BR&experience=power-bi' },
-  { t: 'Custo de Manutenção · Diário', d: 'Orçado x realizado diário do custo de manutenção da frota.', ico: 'chart', tone: 'l', url: 'https://app.powerbi.com/groups/3ddeded8-81f5-420c-911d-00b515315786/reports/c8769fa2-8670-42ea-a629-90a630151db8/f19987f87002e0329880?language=pt-BR&experience=power-bi' },
-  { t: 'Inventário de Frota', d: 'Composição da frota: cadastrada, patrimonial, locada e operacional.', ico: 'truck', tone: 'p', url: 'https://app.powerbi.com/groups/3ddeded8-81f5-420c-911d-00b515315786/reports/c8769fa2-8670-42ea-a629-90a630151db8/f199eb34572138cda909?language=pt-BR&experience=power-bi' },
-  { t: 'Frota Auxiliar', d: 'Acompanhamento da frota auxiliar de apoio às operações.', ico: 'truck', tone: 'o', url: 'https://app.powerbi.com/groups/3ddeded8-81f5-420c-911d-00b515315786/reports/e5c8062f-0249-461f-a1f9-d12b31c22c32/64718a8041c18d712186?language=pt-BR&experience=power-bi' },
-  { t: 'Saída de Peças', d: 'Custo das saídas de peças por empresa, filial e período.', ico: 'wrench', tone: 'l', url: 'https://app.powerbi.com/groups/3ddeded8-81f5-420c-911d-00b515315786/reports/c8769fa2-8670-42ea-a629-90a630151db8/059eb79ffdd89f891415?language=pt-BR&experience=power-bi' },
-  { t: 'Gestão de Pneus', d: 'Controle de pneus — vida útil, rodízio, custo e descarte.', ico: 'gear', tone: 'p', url: 'https://app.powerbi.com/groups/3ddeded8-81f5-420c-911d-00b515315786/reports/64fdd3cc-f87a-46b7-9ab6-9921546bd57b/059eb79ffdd89f891415?language=pt-BR&experience=power-bi' },
-  { t: 'Custo por Veículos', d: 'Custo de manutenção por veículo, modelo e fabricante.', ico: 'truck', tone: 'o', url: 'https://app.powerbi.com/groups/3ddeded8-81f5-420c-911d-00b515315786/reports/c8769fa2-8670-42ea-a629-90a630151db8/ace112990848200ac195?language=pt-BR&experience=power-bi' },
-  { t: 'Abertura de O.S.', d: 'Volume, custo e aging das ordens de serviço por motivo.', ico: 'file', tone: 'l', url: 'https://app.powerbi.com/groups/3ddeded8-81f5-420c-911d-00b515315786/reports/c8769fa2-8670-42ea-a629-90a630151db8/4b1bf6d12a9cca9ee126?language=pt-BR&experience=power-bi' },
-  { t: 'Mapa de Calor · Checklist', d: 'Distribuição do checklist por dia e horário — mapa de calor.', ico: 'dashboard', tone: 'p', url: 'https://app.powerbi.com/groups/3ddeded8-81f5-420c-911d-00b515315786/reports/b2c4e56d-8068-4653-a797-7ba180ca3b52/bc121af00d7c21501942?language=pt-BR&experience=power-bi' },
+  { t: 'Calibragem de Pneus', d: 'Frota motorizada com calibragem em dia, a vencer e vencida (Power BI · PCM Manutenção).', ico: 'gear', tone: 'l', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/4b583df6-62eb-4426-b54f-a428398baf18' },
+  { t: 'Bonificação da Manutenção', d: 'Farol dos indicadores da bonificação (Power BI · PCM Manutenção).', ico: 'target', tone: 'p', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/4b583df6-62eb-4426-b54f-a428398baf18' },
+  { t: 'Posição dos Veículos', d: 'Localização dos ativos da frota (Power BI · PCM Manutenção).', ico: 'truck', tone: 'o', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/4b583df6-62eb-4426-b54f-a428398baf18' },
+  { t: 'CRM · Fechamento do Mês', d: 'Fechamento mensal do custo de manutenção — orçado x realizado.', ico: 'calendar', tone: 'l', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/Report/9c9f93a3-dcec-44c0-b875-29d3bca039bb' },
+  { t: 'ATA · PCM', d: 'Atividades em aberto da ATA do PCM, com responsável e prazo.', ico: 'calendar', tone: 'o', url: 'https://grmultilixo-my.sharepoint.com/:x:/g/personal/gabriel_santos_multilixo_com_br/IQCn5XSV75nvSYFkNHz_UzbqARrvnBBNyl2lC8lBDcZx560?e=xE2NlH' },
+  { t: 'Mapa de Processos 2026', d: 'Mapa consolidado dos processos da manutenção — 2026.', ico: 'flow', tone: 'l', url: 'https://grmultilixo-my.sharepoint.com/:x:/g/personal/gabriel_santos_multilixo_com_br/IQB_h1tlizJ0R4JHdSzuWKbOAZtsv8A2EggvsPtnrDr4oPo?e=0QtMh4' },
   { t: 'Solicitação de Apoio e Orçamento · Máquinas', d: 'Formulário para solicitar apoio e orçamento para máquinas.', ico: 'file', tone: 'o', url: 'https://script.google.com/macros/s/AKfycbyz44HPLiksX5w9YDNLR_Rsgu02YrBlMnFwhH_gJWpZRokWDd1rGy-50LTZ1RMoDiC4/exec' },
-  { t: 'SLA · Manutenção Preventiva de Máquinas', d: 'Acompanhamento do SLA da manutenção preventiva de máquinas.', ico: 'target', tone: 'l', url: 'https://jhroochamulti.github.io/manutencao-preventiva-multilixo/index.html?v=54' },
-  { t: 'CPK · Custo por KM', d: 'Custo de manutenção por quilômetro rodado.', ico: 'trend', tone: 'o', url: '#', dev: true },
-  { t: 'QPK · Quebra por KM', d: 'Índice de quebras por quilômetro rodado.', ico: 'target', tone: 'l', url: '#', dev: true },
-  { t: 'MTBF', d: 'Tempo médio entre falhas (Mean Time Between Failures).', ico: 'clock', tone: 'p', url: '#', dev: true },
-  { t: 'MTTR', d: 'Tempo médio de reparo (Mean Time To Repair).', ico: 'gear', tone: 'o', url: '#', dev: true }]
-  );
+  { t: 'SLA · Manutenção Preventiva de Máquinas', d: 'Acompanhamento do SLA da manutenção preventiva de máquinas.', ico: 'target', tone: 'l', url: 'https://jhroochamulti.github.io/manutencao-preventiva-multilixo/index.html?v=54' }];
+
+const IndicadoresPage = () => {
+  const [dashboards, setDashboards] = useState(INDICADORES_LIST);
   const [open, setOpen] = useState(false);
   const [chooser, setChooser] = useState(null);
   const [query, setQuery] = useState('');
