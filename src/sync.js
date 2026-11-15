@@ -117,7 +117,11 @@
 
   let pendingWrites = {};
   let writeTimer = null;
+  // Nada vai pra planilha antes do primeiro pull: evita que um navegador novo apague dados com valores vazios
+  let firstPullDone = false;
+  let prePull = {};
   function remoteSet(key, value) {
+    if (!firstPullDone) { prePull[key] = value; return; }
     pendingWrites[key] = value;
     if (writeTimer) return;
     writeTimer = setTimeout(flushWrites, 400);
@@ -143,6 +147,11 @@
     try {
       const data = await jsonpRequest({ action: 'getAll', prefix: KEY_PREFIX }, 15000);
       if (!data || !data.items) return;
+      if (!firstPullDone) {
+        firstPullDone = true;
+        const held = prePull; prePull = {};
+        Object.keys(held).forEach(k => { if (!(k in data.items)) remoteSet(k, held[k]); });
+      }
       let changed = 0;
       Object.entries(data.items).forEach(([k, v]) => {
         const cur = localStorage.getItem(k);
