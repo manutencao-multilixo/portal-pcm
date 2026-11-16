@@ -3,7 +3,7 @@ var React = window.React;
 const { useState, useEffect } = React;
 
 const QuemSomosPage = () => {
-  const [siteUrl, setSiteUrl] = useState(() => localStorage.getItem('pcm.qs.site') || 'https://www.grupomultilixo.com.br/');
+  const [siteUrl, setSiteUrl] = useState(() => (() => { const u = localStorage.getItem('pcm.qs.site'); return u && !/grupomultilixo/.test(u) ? u : 'https://multilixo.com.br/'; })());
   const [editing, setEditing] = useState(false);
   const [tmp, setTmp] = useState(siteUrl);
   const saveSite = () => {
@@ -25,6 +25,8 @@ const QuemSomosPage = () => {
     { n: 'UR Florestal',    d: 'Reflorestamento' },
     { n: 'Multi Cultivo',   d: 'Compostagem' },
     { n: 'TWM Ambiental',   d: 'Resíduos Perigosos' },
+    { n: 'RCR Ambiental',   d: 'Proteção de Marca e Destruição Controlada' },
+    { n: 'MTL',             d: 'Operações em Mucuri e Três Lagoas' },
   ];
 
   return (
@@ -34,7 +36,7 @@ const QuemSomosPage = () => {
         <div className="qs-hero-text">
           <div className="eyebrow">Quem Somos</div>
           <h2>Papel fundamental no <span style={{color:'var(--orange)'}}>futuro</span> das próximas gerações.</h2>
-          <p>O Grupo Multilixo é formado por <strong>10 empresas, 100% familiar</strong>, com mais de <strong>30 anos</strong> no mercado brasileiro. Líder na gestão de resíduos e o maior grupo de logística circular de São Paulo.</p>
+          <p>O Grupo Multilixo é formado por <strong>12 empresas, 100% familiar</strong>, com mais de <strong>30 anos</strong> no mercado brasileiro. Líder na gestão de resíduos e o maior grupo de logística circular de São Paulo.</p>
           <p>Fundado em 1993 com a <strong>Flacipel</strong> e em 1996 com a <strong>Multilixo</strong>, o grupo cresceu unindo eficiência ambiental, impacto social e resultado.</p>
           <div style={{display:'flex',gap:10,marginTop:20,flexWrap:'wrap',alignItems:'center'}}>
             <a className="btn btn-primary btn-sm" href={siteUrl} target="_blank" rel="noreferrer"><Icon name="link" size={14}/> Site institucional</a>
@@ -45,7 +47,7 @@ const QuemSomosPage = () => {
           </div>
           {editing && (
             <div style={{marginTop:12,display:'flex',gap:8}}>
-              <input value={tmp} onChange={e=>setTmp(e.target.value)} placeholder="https://www.grupomultilixo.com.br/" style={{flex:1,padding:'8px 12px',border:'1px solid var(--line)',borderRadius:8,fontSize:13}}/>
+              <input value={tmp} onChange={e=>setTmp(e.target.value)} placeholder="https://multilixo.com.br/" style={{flex:1,padding:'8px 12px',border:'1px solid var(--line)',borderRadius:8,fontSize:13}}/>
               <button className="btn btn-solid btn-sm" onClick={saveSite}>Salvar</button>
             </div>
           )}
@@ -57,7 +59,7 @@ const QuemSomosPage = () => {
               <img src="assets/multilixo-logo.png" alt="Grupo Multilixo" />
             </div>
             <div className="qs-feature-stat">
-              <div className="qs-feature-num">10</div>
+              <div className="qs-feature-num">{companies.length}</div>
               <div className="qs-feature-lbl">Empresas<br/>do grupo</div>
             </div>
           </div>

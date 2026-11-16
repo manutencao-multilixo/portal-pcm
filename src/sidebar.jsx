@@ -1,4 +1,4 @@
-const Sidebar = ({ current, onNav }) => {
+const Sidebar = ({ current, onNav, open, onClose }) => {
   const groups = [
   {
     label: "Principal",
@@ -28,7 +28,7 @@ const Sidebar = ({ current, onNav }) => {
 
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${open ? 'open' : ''}`}>
       <div className="brand">
         <div className="logo-wrap">
           <img src="assets/pcm-logo.png" alt="PCM" />
@@ -46,7 +46,7 @@ const Sidebar = ({ current, onNav }) => {
         <button
           key={it.id}
           className={`nav-item ${current === it.id ? 'active' : ''}`}
-          onClick={() => onNav(it.id)}>
+          onClick={() => { onNav(it.id); onClose && onClose(); }}>
           
               <span className="ico"><Icon name={it.icon} size={18} /></span>
               {it.name}

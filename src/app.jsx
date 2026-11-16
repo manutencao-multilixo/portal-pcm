@@ -6,6 +6,7 @@ const App = () => {
   });
   const [homeBlocks, setHomeBlocks] = useStateApp([]);
   const [addOpen, setAddOpen] = useStateApp(false);
+  const [menuOpen, setMenuOpen] = useStateApp(false);
   const [newBlock, setNewBlock] = useStateApp({ title: '', desc: '', icon: 'bulb' });
 
   useEffectApp(() => {
@@ -42,7 +43,17 @@ const App = () => {
 
   return (
     <div className="app">
-      <Sidebar current={page} onNav={setPage} />
+      <div className="mobile-topbar">
+        <button className="mobile-menu-btn" aria-label="Abrir menu" onClick={() => setMenuOpen(true)}>
+          <span></span><span></span><span></span>
+        </button>
+        <div className="mobile-brand" onClick={() => setPage('home')}>
+          <img src="assets/pcm-logo.png" alt="PCM" />
+          <div><strong>Portal PCM</strong><small>MULTILIXO</small></div>
+        </div>
+      </div>
+      {menuOpen && <div className="sb-backdrop" onClick={() => setMenuOpen(false)} />}
+      <Sidebar current={page} onNav={setPage} open={menuOpen} onClose={() => setMenuOpen(false)} />
       <main className="main">
         {renderPage()}
       </main>
