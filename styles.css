@@ -1661,6 +1661,7 @@ body[data-edit-mode="0"] .edit-only { display: none !important; }
 .mobile-topbar, .sb-backdrop { display: none; }
 @media (max-width: 900px) {
   :root { --sb-w: 0px; }
+  .app { flex-direction: column; }
   .main { margin-left: 0 !important; }
   .sidebar {
     width: 272px !important;
