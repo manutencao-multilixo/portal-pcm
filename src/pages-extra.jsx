@@ -664,4 +664,107 @@ const EquipePage = ({ onNav }) => {
   );
 };
 
-Object.assign(window, { QuemSomosPage, ProjetosPage, IniciativasPage, NovidadesPage, EquipePage });
+
+// ===== Organograma da Oficina (base: material de Integração) =====
+const ORG_CAM = [
+  { cargo: 'Coord. Regional · Vale do Paraíba', n: 'Alexandro', ativos: 104, pessoas: 20, filiais: 4 },
+  { cargo: 'Gerente · Sede Multilixo', n: 'João Paulo', ativos: 423, pessoas: 162, filiais: 5 },
+  { cargo: 'Coord. Regional · Jaguaré', n: 'Jailson', ativos: 73, pessoas: 17, filiais: 4 },
+  { cargo: 'Coord. Regional · Itupeva', n: 'Valdir', ativos: 98, pessoas: 29, filiais: 6 },
+];
+const ORG_MAQ = [
+  { cargo: 'Coord. Caminhões + Máquinas', n: 'Alexandro', ativos: 104, pessoas: 20, filiais: 4, ico: 'truck' },
+  { cargo: 'Coord. Manutenção', n: 'Wyllipson Cristóvão', ativos: 126, pessoas: 21, filiais: 5, ico: 'wrench' },
+  { cargo: 'Coord. Manutenção', n: 'Cristiano Pantolfo', ativos: 79, pessoas: 17, filiais: 4, ico: 'gear' },
+  { cargo: 'Coord. Manutenção', n: 'Fabio Augusto', ativos: 101, pessoas: 14, filiais: 4, ico: 'gear' },
+  { cargo: 'Coord. Manutenção', n: 'Junior Salomão', ativos: 12, pessoas: 7, filiais: 1, ico: 'leaf' },
+];
+const orgSum = (arr, k) => arr.reduce((s, x) => s + x[k], 0);
+const OrgBox = ({ cargo, n, tone = 'dir', ico = 'users', sub }) => (
+  <div className={`org-box org-${tone}`}>
+    <span className="org-ico"><Icon name={ico} size={22} /></span>
+    <div><div className="org-cargo">{cargo}</div><div className="org-nome">{n}</div>{sub && <div className="org-sub">{sub}</div>}</div>
+  </div>
+);
+const OrgCoord = ({ c }) => (
+  <div className="org-coord">
+    <div className="org-coord-head"><span className="org-ico"><Icon name={c.ico || 'users'} size={20} /></span><div><div className="org-cargo">{c.cargo}</div><div className="org-nome">{c.n}</div></div></div>
+    <div className="org-stats">
+      <div><strong className="org-num-o">{c.ativos}</strong><span>ativos</span></div>
+      <div><strong>{c.pessoas}</strong><span>pessoas</span></div>
+      <div><strong>{c.filiais}</strong><span>{c.filiais === 1 ? 'filial' : 'filiais'}</span></div>
+    </div>
+  </div>
+);
+const OrgTotais = ({ arr }) => (
+  <div className="org-totais">
+    <div><strong>{orgSum(arr, 'ativos')}</strong><span>ativos</span></div>
+    <div><strong>{orgSum(arr, 'pessoas')}</strong><span>pessoas</span></div>
+    <div><strong>{orgSum(arr, 'filiais')}</strong><span>filiais</span></div>
+  </div>
+);
+const OrganogramaPage = () => (
+  <div className="page">
+    <div className="page-header">
+      <div>
+        <div className="eyebrow">Diretoria de Manutenção</div>
+        <h1>Organograma da Oficina</h1>
+        <p className="lead">Estrutura de gestão da manutenção, coordenações regionais de caminhões e coordenações de máquinas, com ativos, pessoas e filiais de cada uma.</p>
+      </div>
+    </div>
+
+    <Reveal>
+      <SectionHead eyebrow="Manutenção" title="Estrutura de gestão e responsáveis técnicos" />
+      <div className="org-card">
+        <div className="org-row"><OrgBox cargo="Diretor de Manutenção" n="Julio Scalisse" ico="gear" /></div>
+        <div className="org-link" />
+        <div className="org-row org-row-3">
+          <OrgBox cargo="Gerente Executivo de Caminhões" n="Cristiano Guertes" tone="cam" ico="truck" />
+          <OrgBox cargo="Gerente de Máquinas" n="Clayton Faneli" tone="maq" ico="wrench" />
+          <OrgBox cargo="PCM · Torre · Digitalização" n="Gabriel Santos" sub="Mapeamento de Processos" tone="pcm" ico="chart" />
+        </div>
+      </div>
+    </Reveal>
+
+    <Reveal>
+      <SectionHead eyebrow="Mapa operacional" title="Caminhões — coordenações regionais" right={<OrgTotais arr={ORG_CAM} />} />
+      <div className="org-card">
+        <div className="org-row"><OrgBox cargo="Diretor de Manutenção" n="Julio Scalisse" ico="gear" /></div>
+        <div className="org-link" />
+        <div className="org-row"><OrgBox cargo="Gerente Executivo de Manutenção" n="Cristiano Guertes" tone="ger" ico="truck" /></div>
+        <div className="org-link" />
+        <div className="org-coords org-coords-4">{ORG_CAM.map(c => <OrgCoord key={c.n} c={{ ...c, ico: 'flow' }} />)}</div>
+        <p className="org-note">Head count conforme a classificação de oficinas e filiais (caminhões).</p>
+      </div>
+    </Reveal>
+
+    <Reveal>
+      <SectionHead eyebrow="Estrutura de gestão" title="Máquinas, picadores e colheita" right={<OrgTotais arr={ORG_MAQ} />} />
+      <div className="org-card">
+        <div className="org-row org-row-3 org-top">
+          <OrgBox cargo="Diretor de Operações" n="Marcos Pessotta" ico="gear" />
+          <OrgBox cargo="Diretor de Manutenção Geral" n="Julio Scalisse" ico="gear" />
+          <OrgBox cargo="Gerente de Colheita" n="Bruno Sartori" tone="ger" ico="leaf" />
+        </div>
+        <div className="org-link" />
+        <div className="org-row org-row-side">
+          <OrgBox cargo="Gerente de Máquinas" n="Clayton Faneli" tone="ger" ico="wrench" />
+          <OrgBox cargo="Consultor externo" n="Carlos Leite" tone="out" ico="users" />
+        </div>
+        <div className="org-link" />
+        <div className="org-coords org-coords-5">{ORG_MAQ.map(c => <OrgCoord key={c.n} c={c} />)}</div>
+        <p className="org-note">Total inclui máquinas, picadores e colheita.</p>
+      </div>
+    </Reveal>
+
+    <div className="org-legenda">
+      <span><i className="lg-dir" />Diretoria</span><span><i className="lg-ger" />Gerência</span><span><i className="lg-coord" />Coordenação / liderança</span><span><i className="lg-out" />Consultor</span>
+    </div>
+
+    <section style={{ marginTop: 48 }}>
+      <FreeContentBoard storageKey="pcm.organograma.free" title="Mais sobre a estrutura" subtitle="Adicione fotos das equipes, apresentações ou atualizações do organograma." />
+    </section>
+  </div>
+);
+
+Object.assign(window, { QuemSomosPage, ProjetosPage, IniciativasPage, NovidadesPage, EquipePage, OrganogramaPage });

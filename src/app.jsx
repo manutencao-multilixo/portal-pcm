@@ -37,6 +37,7 @@ const App = () => {
       case 'iniciativas': return <IniciativasPage />;
       case 'novidades': return <NovidadesPage />;
       case 'equipe': return <EquipePage onNav={setPage} />;
+      case 'organograma': return <OrganogramaPage />;
       default: return <HomePage onNav={setPage} blocks={homeBlocks} addBlock={addHomeBlock} />;
     }
   };

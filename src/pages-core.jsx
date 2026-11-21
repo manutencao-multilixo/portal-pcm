@@ -3,7 +3,7 @@ var React = window.React;
 const { useState, useEffect, useRef, useCallback } = React;
 
 // ===== Busca geral do portal =====
-const PCM_PAGE_LABEL = { novidades:'Novidades', projetos:'Projetos', iniciativas:'Iniciativas', equipe:'Equipe', indicadores:'Indicadores', pops:'POPs', mapros:'MAPROs', pcm:'PCM', home:'Início', quemsomos:'Quem Somos' };
+const PCM_PAGE_LABEL = { novidades:'Novidades', projetos:'Projetos', iniciativas:'Iniciativas', equipe:'Equipe', indicadores:'Indicadores', pops:'POPs', mapros:'MAPROs', pcm:'PCM', home:'Início', quemsomos:'Quem Somos', organograma:'Organograma' };
 const pcmNorm = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const pcmRead = (k) => { try { return JSON.parse(localStorage.getItem(k) || '[]') || []; } catch (e) { return []; } };
 const buildSearchIndex = () => {
@@ -609,6 +609,7 @@ const MAPROsPage = () => {
 
 const INDICADORES_LIST = [
   { t: 'Ranking das Oficinas', d: 'Ranking de desempenho das oficinas e da manutenção.', ico: 'chart', tone: 'o', url: 'https://claude.ai/artifact/8niVMbHYZhkjVEg5VMjRHf' },
+  { t: 'Painel de Eventos · Telemetria', d: 'Central de Eventos da Maxtrack: alertas da frota por criticidade, do gravíssimo ao informativo.', ico: 'shield', tone: 'p', url: 'https://go.maxtrack.com.br/#event/Event' },
   { t: 'Inventário de Frota', d: 'Composição da frota por empresa, filial, classe e fabricante (Power BI · PCM Manutenção Filiais).', ico: 'truck', tone: 'p', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
   { t: 'Custo de Manutenção', d: 'Orçado x realizado, saídas de peças e custo por veículo (Power BI · PCM Manutenção Filiais).', ico: 'chart', tone: 'o', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },
   { t: 'Ordens de Serviço', d: 'Volume, custo e aging das O.S. (Power BI · PCM Manutenção Filiais).', ico: 'file', tone: 'l', url: 'https://multilixo.powerembedded.com.br/Organization/2ccf4b7a-d465-4170-ac34-2256127e7782/App/585cf373-ca6b-46af-b87c-a3902ee13a93' },

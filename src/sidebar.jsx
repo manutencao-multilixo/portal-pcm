@@ -22,7 +22,8 @@ const Sidebar = ({ current, onNav, open, onClose }) => {
     { id: "projetos", name: "Projetos Entregues", icon: "rocket" },
     { id: "iniciativas", name: "Iniciativas", icon: "bulb" },
     { id: "novidades", name: "Novidades", icon: "megaphone" },
-    { id: "equipe", name: "Equipe", icon: "users" }]
+    { id: "equipe", name: "Equipe", icon: "users" },
+    { id: "organograma", name: "Organograma da Oficina", icon: "flow" }]
 
   }];
 
