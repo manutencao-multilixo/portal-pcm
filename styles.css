@@ -1712,3 +1712,53 @@ body[data-edit-mode="0"] .edit-only { display: none !important; }
   .modal, .modal-card { max-width: calc(100vw - 24px) !important; }
   #pcm-edit-lock { right: 14px; bottom: 14px; }
 }
+
+
+/* ===== Organograma da Oficina ===== */
+.org-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 28px; margin: 18px 0 40px; }
+.org-row { display: flex; justify-content: center; gap: 18px; }
+.org-row-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); }
+.org-row-side { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); max-width: 760px; margin: 0 auto; }
+.org-link { width: 2px; height: 22px; background: var(--purple-800); margin: 0 auto; }
+.org-box { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 14px; color: #fff; min-width: 280px; box-shadow: var(--shadow-sm); }
+.org-row-3 .org-box, .org-row-side .org-box { min-width: 0; }
+.org-dir { background: linear-gradient(135deg, var(--purple-900), var(--purple-700)); }
+.org-ger { background: linear-gradient(135deg, #6b4f94, #8a6fb3); }
+.org-cam { background: linear-gradient(135deg, #1d5fc9, #2f7fe0); }
+.org-maq { background: linear-gradient(135deg, #12804a, #22a061); }
+.org-pcm { background: linear-gradient(135deg, var(--orange-dark), var(--orange)); }
+.org-out { background: #fff; color: var(--purple-800); border: 1.5px solid var(--purple-700); }
+.org-ico { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,.16); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.org-out .org-ico { background: var(--purple-100); }
+.org-cargo { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; opacity: .85; }
+.org-nome { font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: 19px; line-height: 1.2; }
+.org-sub { font-size: 12.5px; opacity: .9; margin-top: 2px; }
+.org-coords { display: grid; gap: 14px; }
+.org-coords-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+.org-coords-5 { grid-template-columns: repeat(5, minmax(0,1fr)); }
+.org-coord { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; box-shadow: var(--shadow-sm); }
+.org-coord-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: linear-gradient(135deg, var(--orange-dark), var(--orange)); color: #fff; }
+.org-coord-head .org-nome { font-size: 16px; }
+.org-stats { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; padding: 14px 6px; }
+.org-stats div { display: flex; flex-direction: column; }
+.org-stats strong, .org-totais strong { font-family: 'Plus Jakarta Sans'; font-size: 22px; font-weight: 800; color: var(--purple-800); line-height: 1.1; }
+.org-stats strong.org-num-o { color: var(--orange-dark); }
+.org-stats span, .org-totais span { font-size: 12px; color: var(--ink-3); }
+.org-totais { display: flex; gap: 22px; }
+.org-totais div { display: flex; flex-direction: column; align-items: flex-end; }
+.org-note { margin-top: 14px; font-size: 12px; color: var(--ink-3); font-style: italic; text-align: center; }
+.org-legenda { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; font-size: 13px; color: var(--ink-2); }
+.org-legenda span { display: flex; align-items: center; gap: 8px; }
+.org-legenda i { width: 16px; height: 16px; border-radius: 4px; display: inline-block; }
+.lg-dir { background: var(--purple-800); } .lg-ger { background: #8a6fb3; } .lg-coord { background: var(--orange); } .lg-out { background: #fff; border: 1.5px solid var(--purple-700); }
+@media (max-width: 1100px) {
+  .org-coords-5 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .org-coords-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 720px) {
+  .org-card { padding: 16px; }
+  .org-row-3, .org-row-side, .org-coords-4, .org-coords-5 { grid-template-columns: minmax(0,1fr) !important; }
+  .org-box { min-width: 0; width: 100%; }
+  .org-row { flex-direction: column; }
+  .org-totais { gap: 14px; }
+}
